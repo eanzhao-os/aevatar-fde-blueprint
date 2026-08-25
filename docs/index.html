@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Aevatar FDE Blueprint</title>
+<meta name="description" content="把 aevatar 改造成 FDE 实施平台的改造方案：七个工作流、四个阶段，让 gravel road → paved highway 成为平台机制。">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@600;700;900&family=Noto+Sans+SC:wght@400;500;700&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+  :root {
+    --bg: #F3F5F8;
+    --surface: #FFFFFF;
+    --surface-2: #EAEEF4;
+    --ink: #1C2433;
+    --muted: #5C6880;
+    --line: #D9DFEA;
+    --accent: #2757C4;
+    --accent-soft: #E3EAF9;
+    --ok: #1D7A4F; --ok-bg: #E1F1E8;
+    --warn: #9A6400; --warn-bg: #F6ECD6;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #0E1219;
+      --surface: #151B26;
+      --surface-2: #1C2432;
+      --ink: #E9EDF5;
+      --muted: #9AA5BB;
+      --line: #2A3345;
+      --accent: #7FA7F2;
+      --accent-soft: #1E2B45;
+      --ok: #5BC48C; --ok-bg: #14301F;
+      --warn: #E0A94E; --warn-bg: #33270E;
+    }
+  }
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--ink);
+    font-family: "Noto Sans SC", "PingFang SC", "Microsoft YaHei", sans-serif;
+    font-size: 16px;
+    line-height: 1.85;
+    padding: 0 1.25rem 5rem;
+  }
+  .col { max-width: 46rem; margin: 0 auto; }
+  .wide { max-width: 64rem; margin: 0 auto; }
+  a { color: var(--accent); }
+  code { font-family: "IBM Plex Mono", monospace; font-size: .85em; background: var(--surface-2); border-radius: 3px; padding: .1em .35em; }
+
+  header.hero { max-width: 46rem; margin: 5rem auto 3.5rem; }
+  .eyebrow {
+    font-family: "IBM Plex Mono", monospace;
+    font-size: .75rem; letter-spacing: .14em; text-transform: uppercase;
+    color: var(--accent); margin: 0 0 1rem;
+  }
+  h1 {
+    font-family: "Noto Serif SC", serif;
+    font-weight: 900;
+    font-size: clamp(2rem, 6vw, 3rem);
+    line-height: 1.22;
+    margin: 0 0 1.25rem;
+    text-wrap: balance;
+  }
+  .standfirst { font-size: 1.1rem; color: var(--muted); margin: 0 0 1.6rem; }
+  .meta {
+    font-family: "IBM Plex Mono", monospace;
+    font-size: .78rem; color: var(--muted);
+    border-top: 1px solid var(--line);
+    padding-top: .9rem;
+    display: flex; flex-wrap: wrap; gap: .35rem 1.5rem;
+  }
+
+  section { margin: 4.5rem auto; }
+  .sec-head { max-width: 46rem; margin: 0 auto 1.5rem; border-top: 2px solid var(--ink); padding-top: 1.1rem; }
+  .sec-head .n {
+    font-family: "IBM Plex Mono", monospace;
+    font-size: .78rem; letter-spacing: .12em; color: var(--accent);
+    display: block; margin-bottom: .4rem;
+  }
+  h2 {
+    font-family: "Noto Serif SC", serif;
+    font-weight: 700; font-size: 1.55rem; line-height: 1.35;
+    margin: 0; text-wrap: balance;
+  }
+  h3 { font-family: "Noto Serif SC", serif; font-weight: 700; font-size: 1.1rem; margin: 0 0 .5rem; }
+
+  .callout {
+    background: var(--accent-soft);
+    border-left: 3px solid var(--accent);
+    border-radius: 0 6px 6px 0;
+    padding: 1.1rem 1.4rem;
+    margin: 1.6rem 0;
+  }
+  .callout p { margin: 0; }
+
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(17rem, 1fr));
+    gap: 1rem;
+    margin-top: 2rem;
+  }
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: 6px;
+    padding: 1.3rem 1.4rem;
+  }
+  .card .tag {
+    font-family: "IBM Plex Mono", monospace;
+    font-size: .7rem; letter-spacing: .1em;
+    color: var(--accent);
+    display: block; margin-bottom: .5rem;
+  }
+  .card p { margin: 0; font-size: .93rem; color: var(--muted); }
+
+  .phase { display: grid; grid-template-columns: 7.5rem 1fr; gap: 1.2rem; margin: 1.4rem 0; }
+  .phase .when {
+    font-family: "IBM Plex Mono", monospace;
+    font-size: .78rem; color: var(--accent);
+    padding-top: .25rem; white-space: nowrap;
+  }
+  .phase .what { border-left: 2px solid var(--line); padding-left: 1.2rem; }
+  .phase .what h3 { margin-bottom: .3rem; }
+  .phase .what p { margin: 0; font-size: .95rem; color: var(--muted); }
+  @media (max-width: 34rem) {
+    .phase { grid-template-columns: 1fr; gap: .3rem; }
+    .phase .what { border-left: none; padding-left: 0; }
+  }
+
+  .pill {
+    display: inline-block;
+    font-family: "IBM Plex Mono", monospace;
+    font-size: .72rem;
+    padding: .1rem .55rem;
+    border-radius: 999px;
+    white-space: nowrap;
+  }
+  .pill.ok { color: var(--ok); background: var(--ok-bg); }
+  .pill.warn { color: var(--warn); background: var(--warn-bg); }
+
+  ul { padding-left: 1.4em; } li { margin: .45rem 0; }
+  footer {
+    max-width: 46rem; margin: 5rem auto 0;
+    border-top: 1px solid var(--line);
+    padding-top: 1.2rem;
+    font-size: .85rem; color: var(--muted);
+  }
+  :focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+</style>
+</head>
+<body>
+
+<header class="hero">
+  <p class="eyebrow">Aevatar FDE Blueprint · draft v1</p>
+  <h1>把 aevatar 改造成 FDE 实施平台</h1>
+  <p class="standfirst">FDE（Forward Deployed Engineer）在客户现场用平台交付企业级 agent 方案；平台把每一单 bespoke 交付收割成可复售模板。本方案定义了让这个循环在 aevatar 上成立的七个工作流与四个阶段。</p>
+  <div class="meta">
+    <span>2026-08-25</span>
+    <span>owner: eanzhao</span>
+    <span>完整方案见私有仓库 <a href="https://github.com/eanzhao/aevatar-fde-blueprint">aevatar-fde-blueprint</a></span>
+  </div>
+</header>
+
+<section>
+  <div class="sec-head"><span class="n">01</span><h2>核心判断</h2></div>
+  <div class="col">
+    <div class="callout">
+      <p><strong>aevatar 的能力本体（动词侧）已是一流——typed 准入、风险分级、sealed profile、灰度治理；缺的是数据本体（客户业务对象层）与收割机制（bespoke → 模板的回路）。</strong>企业 agent 试点最常死于集成、权限、审计——后两者 aevatar 天然带着，"demo 即 production skeleton" 在这个平台上成立。</p>
+    </div>
+    <ul>
+      <li>FDE 成立的唯一判据：<strong>现场经验回流平台的速度快过交付人头的增长</strong>。回流断掉，FDE 就是换名字的咨询。</li>
+      <li>客户业务对象（订单/工单/设备）在平台内尚无建模位置——补齐它，agent 就从"每轮现场拉数"升级为"站在治理过的对象上读写"，防幻觉从 prompt 补丁变成架构约束。</li>
+      <li>私有化不是先决条件：近期 hosted + hybrid（出站隧道、客户侧执行节点、签名 webhook）即可开展交付；single-tenant VPC 托管是中期工程题。</li>
+    </ul>
+  </div>
+</section>
+
+<section>
+  <div class="sec-head"><span class="n">02</span><h2>七个工作流</h2></div>
+  <div class="wide">
+    <div class="grid">
+      <div class="card">
+        <span class="tag">WS-A · P0</span>
+        <h3>数据本体层（Scope Ontology）</h3>
+        <p>为每个客户 scope 建模业务对象：object type + typed property + link + action，由已准入操作供数与写回；agent 获得 object query / link 遍历 / 受治理的 action 工具。</p>
+      </div>
+      <div class="card">
+        <span class="tag">WS-B · P0</span>
+        <h3>FDE 交付工作台</h3>
+        <p>交付包成为数据（registry + 版本化），跨 artifact 的 capability manifest 可 diff 可评审，bootcamp playbook 与单一 runbook 收敛部落知识。</p>
+      </div>
+      <div class="card">
+        <span class="tag">WS-C · P1</span>
+        <h3>评测与信任</h3>
+        <p>shadow replay 评测、发布回归门禁、eval 化验收；统一 agent 变更审计账本与高风险 action 影响预览。</p>
+      </div>
+      <div class="card">
+        <span class="tag">WS-D · P0/P1</span>
+        <h3>身份与权限完备化</h3>
+        <p>消息渠道发送者绑定的收尾硬化（未绑定发送者降权目录）、组织级连接、准入流程"复制税"工具化。</p>
+      </div>
+      <div class="card">
+        <span class="tag">WS-E · P1/P2</span>
+        <h3>部署形态梯度</h3>
+        <p>Tier1 hybrid 硬化（隧道/执行节点 fleet 化）→ Tier2 single-tenant VPC 部署 kit → Tier3 数据驻留（按单触发）。</p>
+      </div>
+      <div class="card">
+        <span class="tag">WS-F · P2</span>
+        <h3>客户端集成 SDK</h3>
+        <p>从读模型契约生成 typed SDK（异步确认 + 版本水位轮询内建）；本体落地后升级为真正的 OSDK 形态。</p>
+      </div>
+      <div class="card">
+        <span class="tag">WS-G · P0 制度</span>
+        <h3>经济回路</h3>
+        <p>每单必开 harvest review，模板目录与复用率/边际成本度量；平台自带的 agent 化交付技能升级为 "AI FDE" 产品能力。</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="sec-head"><span class="n">03</span><h2>四个阶段</h2></div>
+  <div class="col">
+    <div class="phase">
+      <div class="when">第 0–1 月</div>
+      <div class="what">
+        <h3>Phase 0 · 零平台代码 <span class="pill ok">立即可做</span></h3>
+        <p>runbook 收敛；用现有 hybrid 机制打样 1–2 个真实交付；harvest review 制度落地；基线指标。</p>
+      </div>
+    </div>
+    <div class="phase">
+      <div class="when">第 1–3 月</div>
+      <div class="what">
+        <h3>Phase 1 · P0 三件套</h3>
+        <p>Scope Ontology MVP（含人工评测集对照）；渠道权限收尾验证；package registry；delivery acceptance 出路。</p>
+      </div>
+    </div>
+    <div class="phase">
+      <div class="when">第 3–6 月</div>
+      <div class="what">
+        <h3>Phase 2 · 评测与集成</h3>
+        <p>replay 评测与发布门禁；capability manifest 与 proposal 流转；SDK v1；准入工具化。</p>
+      </div>
+    </div>
+    <div class="phase">
+      <div class="when">第 6–12 月</div>
+      <div class="what">
+        <h3>Phase 3 · 部署梯度与本体完整化 <span class="pill warn">依赖前序</span></h3>
+        <p>执行面 fleet 化与 VPC 部署 kit；link 遍历与 action 写回接通审计账本；度量闭环出趋势。</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="sec-head"><span class="n">04</span><h2>组织与判据</h2></div>
+  <div class="col">
+    <p>一个 engagement 一个 pod：<strong>Delta</strong>（交付工程师，与平台工程师同一技术标准）+ <strong>Echo</strong>（行业/客户侧专家）+ 共享的<strong>平台收割 owner</strong>（主持每单 harvest review，把可复用产物推进 registry 与 roadmap——回流循环的执行者）。</p>
+    <p>交付节奏对标 bootcamp：真实数据、真实权限，1–5 天产出生产骨架而非 demo；验收基线即首个评测集。</p>
+    <p>四个代理指标盯住唯一判据：交付周期中位数 ↓、模板复用率 ↑、每单边际成本 ↓、harvest 产出率 &gt;0。<strong>模板复用率上升且边际成本下降而人头不增 = FDE 是产品战略；否则是在做咨询。</strong></p>
+  </div>
+</section>
+
+<footer>
+  <p>本页为方案摘要。完整方案（差距分析、工作流设计、里程碑与验收、风险清单）在私有仓库 <a href="https://github.com/eanzhao/aevatar-fde-blueprint">eanzhao/aevatar-fde-blueprint</a>；落地项转入 aevatar 主仓库的 issue/milestone 管理。</p>
+</footer>
+
+</body>
+</html>
