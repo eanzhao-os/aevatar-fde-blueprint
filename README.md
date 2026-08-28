@@ -2,7 +2,7 @@
 
 把 aevatar 改造成 **FDE（Forward Deployed Engineer）实施平台**的改造方案。
 
-📄 **方案说明页**：https://eanzhao.github.io/aevatar-fde-blueprint/
+📄 **方案说明页**：https://eanzhao-os.github.io/aevatar-fde-blueprint/
 
 ## 一句话
 
